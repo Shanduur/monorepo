@@ -4,9 +4,9 @@ import (
 	"net"
 	"os"
 
-	"github.com/shanduur/cproc"
 	"golang.org/x/net/icmp"
 	"golang.org/x/net/ipv4"
+	"my.mod/cproc"
 )
 
 func main() {

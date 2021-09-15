@@ -1,4 +1,4 @@
-module github.com/shanduur/cproc
+module my.mod/cproc
 
 go 1.17
 
