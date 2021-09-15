@@ -8,9 +8,9 @@ WORKDIR /usr/mvs38
 RUN curl -sSLO http://www.hercules-390.org/hercules-3.07-1.x86_64.rpm && rpm -i ./hercules-3.07-1.x86_64.rpm
 
 # install MVS
-RUN curl -sSLO http://wotho.ethz.ch/tk4-/tk4-_v1.00_current.zip && unzip tk4-_v1.00_current.zip
-RUN curl -sSLO http://wotho.ethz.ch/tk4-/tk4-source.zip && unzip tk4-source.zip
-RUN curl -sSLO http://wotho.ethz.ch/tk4-/tk4-cbt.zip && unzip tk4-cbt.zip
+RUN curl -sSLO http://wotho.ethz.ch/tk4-/tk4-_v1.00_current.zip && unzip -o -qq tk4-_v1.00_current.zip
+RUN curl -sSLO http://wotho.ethz.ch/tk4-/tk4-source.zip && unzip -o -qq tk4-source.zip
+RUN curl -sSLO http://wotho.ethz.ch/tk4-/tk4-cbt.zip && unzip -o -qq tk4-cbt.zip
 
 # remove downloaded files
 RUN rm *.zip *.rpm
