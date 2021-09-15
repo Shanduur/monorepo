@@ -1,0 +1,10 @@
+[Unit]
+Description=The Hercules running MVS 3.8 Tur(n)key 4
+After=syslog.target network.target remote-fs.target nss-lookup.target
+
+[Service]
+WorkingDirectory=/usr/mvs38
+ExecStart=bash -c "/usr/mvs38/mvs"
+
+[Install]
+WantedBy=multi-user.target

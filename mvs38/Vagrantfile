@@ -1,0 +1,13 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "generic/rocky8"
+
+  config.vm.define "hercules-mvs"
+  config.vm.network :forwarded_port, guest: 22, host: 2222, id: "ssh"
+  config.vm.network :forwarded_port, guest: 3270, host: 5821
+
+  config.vm.provision "file", source: "./hercules.service", destination: "/tmp/hercules.service"
+  config.vm.provision "shell", privileged: true, path: "./setup.sh"
+end
