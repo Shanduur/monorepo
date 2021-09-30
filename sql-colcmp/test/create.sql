@@ -1,0 +1,6 @@
+CREATE TABLE T1(
+    I1 INTEGER, 
+    D1 DECIMAL(10, 2)
+    C1 CHAR(1),
+    C2 VARCHAR(10),
+);
