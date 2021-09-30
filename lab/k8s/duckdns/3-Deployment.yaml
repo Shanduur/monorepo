@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: duckdns
+  labels:
+    app: duckdns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: duckdns
+  template:
+    metadata:
+      labels:
+        app: duckdns
+    spec:
+      containers:
+      - name: duckdns
+        image: ghcr.io/linuxserver/duckdns
+        ports:
+        - containerPort: 53
+        resources: {}
+        volumeMounts:
+        - mountPath: /config
+          name: duckdns-data
+        env:
+        - name: PUID
+          value: 1001
+        - name: GUID
+          value: 1001
+        - name: TZ
+          value: Europe/London
+        - name: SUBDOMAINS
+          value: subdomain1,subdomain2
+        - name: TOKEN
+          value: token
+        - name: LOG_FILE
+          value: 'false'
+      restartPolicy: OnFailure
+      volumes:
+      - name: rstudio
+        persistentVolumeClaim:
+          claimName: rstudio-data

@@ -1,0 +1,16 @@
+services:
+  duckdns:
+    image: ghcr.io/linuxserver/duckdns
+    restart: on-failure
+    container_name: duckdns
+    environment:
+      - PUID=1000 #optional
+      - PGID=1000 #optional
+      - TZ=Europe/London
+      - SUBDOMAINS=subdomain1,subdomain2
+      - TOKEN=token
+      - LOG_FILE=false #optional
+    volumes:
+      - config:/config #optional
+volumes:
+  config:

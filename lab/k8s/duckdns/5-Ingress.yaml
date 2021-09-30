@@ -1,0 +1,12 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: duckdns
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        backend:
+          serviceName: duckdns
+          servicePort: 53

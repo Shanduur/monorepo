@@ -1,0 +1,10 @@
+[Unit]
+Description=Traefik proxy server Documentation=https://github.com/containous/traefik 
+
+[Service] 
+ExecStart=/usr/bin/traefik -c /etc/traefik/traefik.toml 
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

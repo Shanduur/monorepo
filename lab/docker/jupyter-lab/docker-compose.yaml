@@ -1,0 +1,12 @@
+services:
+  rstudio:
+    image: rocker/rstudio:latest
+    restart: on-failure
+    ports: 
+    - '10002:8888'
+    volumes:
+    - data:/home/jovyan/work
+    environment:
+      PASSWORD: passw0rd
+volumes: 
+  data:

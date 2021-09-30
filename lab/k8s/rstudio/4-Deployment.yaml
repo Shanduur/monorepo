@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rstudio
+  labels:
+    app: rstudio
+  namespace: rstudio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rstudio
+  template:
+    metadata:
+      labels:
+        app: rstudio
+    spec:
+      containers:
+      - name: rstudio
+        image: rocker/rstudio:latest
+        ports:
+        - containerPort: 8787
+        resources: {}
+        volumeMounts:
+        - mountPath: /data
+          name: rstudio-data
+        env:
+        - name: PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: rstudio
+              key: password
+      restartPolicy: OnFailure
+      volumes:
+      - name: rstudio
+        persistentVolumeClaim:
+          claimName: rstudio-data
