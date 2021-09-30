@@ -4,6 +4,7 @@ metadata:
   name: jupyter
   labels:
     app: jupyter
+  namespace: jupyter
 spec:
   replicas: 1
   selector:
@@ -26,8 +27,7 @@ spec:
         env:
         - name: JUPYTER_ENABLE_LAB
           value: 'yes'
-      restartPolicy: OnFailure
       volumes:
-      - name: rstudio
+      - name: jupyter-data
         persistentVolumeClaim:
-          claimName: rstudio-data
+          claimName: jupyter-data
