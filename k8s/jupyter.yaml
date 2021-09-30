@@ -39,3 +39,17 @@ spec:
     - protocol: TCP
       port: 10001
       targetPort: 8888
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jupyter
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /jupyter
+        backend:
+          serviceName: jupyter
+          servicePort: 10001

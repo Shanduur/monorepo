@@ -9,7 +9,7 @@ metadata:
   name: rstudio
   namespace: rstudio
 data:
-  password: Mzk1MjgkdmRnN0pi
+  password: passw0rd
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -52,3 +52,17 @@ spec:
     - protocol: TCP
       port: 10002
       targetPort: 8787
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rstudio
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /rstudio
+        backend:
+          serviceName: rstudio
+          servicePort: 10002
