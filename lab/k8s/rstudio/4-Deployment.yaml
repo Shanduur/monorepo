@@ -30,8 +30,7 @@ spec:
             secretKeyRef:
               name: rstudio
               key: password
-      restartPolicy: OnFailure
       volumes:
-      - name: rstudio
+      - name: rstudio-data
         persistentVolumeClaim:
           claimName: rstudio-data
