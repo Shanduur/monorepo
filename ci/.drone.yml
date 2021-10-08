@@ -1,0 +1,17 @@
+---
+kind: pipeline
+type: docker
+name: validate
+
+steps:
+- name: commit message validation
+  image: node
+  commands:
+  - npm install --save-dev @commitlint/cli
+  - npm install --save-dev @commitlint/config-conventional @commitlint/cli
+  - npx commitlint --from $DRONE_COMMIT_BEFORE --to $DRONE_COMMIT_AFTER
+  trigger:
+    event:
+      include:
+      - pull_request
+---
