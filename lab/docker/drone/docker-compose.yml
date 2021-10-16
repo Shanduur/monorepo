@@ -4,7 +4,7 @@ services:
     restart: on-failure
     ports:
     - '8002:80'
-    - '9001:443'
+    - '9002:443'
     volumes:
     - /home/opc/docker/appdata/drone:/data
     environment:
