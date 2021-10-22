@@ -1,0 +1,26 @@
+[entryPoints]
+  [entryPoints.http]
+  address = ":80"
+  [entryPoints.https]
+  address = ":443"
+    [entryPoints.https.tls]
+
+[acme]
+email = "mail@example.org"
+storage = "acme.json"
+caServer = "https://acme-staging-v02.api.letsencrypt.org/directory"
+entryPoint = "https"
+  [acme.httpChallenge]
+  entryPoint = "http"
+
+[[acme.domains]]
+  main = "example.org"
+  sans = [
+    "consul.example.org",       # HashiCorp Consul
+    "drone.example.org",        # Drone CI
+    "git.example.org",          # Gitea
+    "kube.example.org",         # Kubernetes Dashboard
+    "portainer.example.org",    # Portainer
+    "pve.example.org",          # Proxmox Virtual Environment
+    "vault.example.org",        # HashiCorp Vault
+  ]
