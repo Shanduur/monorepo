@@ -1,0 +1,8 @@
+services:
+  ipu:
+    image: shanduur/ipu:latest
+    restart: on-failure
+    environment:
+    - DUCKDNS_TOKEN=secret
+    - TIMEOUT=6h
+    - DOMAINS=domain1,domain2,domain3 # do not include .duckdns.org
