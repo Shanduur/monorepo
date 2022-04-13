@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
+	"time"
 )
 
 const (
@@ -212,8 +214,25 @@ func format(fileName string) error {
 	return nil
 }
 
+func wrap(x func(string) error, f string, wg *sync.WaitGroup, isFailure *bool) {
+	defer wg.Done()
+
+	fmt.Printf("formatting: %s\n", f)
+
+	start := time.Now()
+	err := x(f)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "unable to format file: %v\n", err)
+		*isFailure = true
+	}
+	fmt.Printf("%s done, took: %v\n", f, time.Since(start))
+}
+
 func main() {
-	path := os.Args[1]
+	path := "."
+	if len(os.Args) >= 2 {
+		path = os.Args[1]
+	}
 
 	si, err := os.Stat(path)
 	if err != nil {
@@ -238,18 +257,17 @@ func main() {
 		regFileName := regexp.MustCompile(FILENAME)
 
 		isFailure := false
+		var wg sync.WaitGroup
 		for _, f := range files {
 			if !regFileName.MatchString(f) {
 				continue
 			}
 
-			err = format(f)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "unable to format file: %v\n", err)
-				isFailure = true
-			}
+			wg.Add(1)
+			go wrap(format, f, &wg, &isFailure)
 		}
 
+		wg.Wait()
 		if isFailure {
 			os.Exit(FAILURE)
 		}
