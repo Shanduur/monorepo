@@ -48,8 +48,8 @@ func getQuerry(reader *bufio.Reader) (query string, comment []string, err error)
 	insertReg := regexp.MustCompile(INSERT)
 	if insertReg.Match([]byte(query)) {
 		commReg := regexp.MustCompile(COMMENT)
-		b_comment := commReg.FindAll([]byte(query), -1)
-		for _, b := range b_comment {
+		bComment := commReg.FindAll([]byte(query), -1)
+		for _, b := range bComment {
 			c := strings.ReplaceAll(string(b), "\n", "")
 			strings.ReplaceAll(c, "\r", "")
 
@@ -152,14 +152,14 @@ func formatQuerry(query string) (formatted string, err error) {
 func format(fileName string) error {
 	file, err := os.OpenFile(fileName, os.O_RDWR, 0666)
 	if err != nil {
-		return fmt.Errorf("unable to open file: %v\n", err)
+		return fmt.Errorf("unable to open file: %v", err)
 	}
 	defer file.Close()
 	defer file.Sync()
 
 	scanner := bufio.NewReader(file)
 	if err != nil {
-		return fmt.Errorf("unable to create scanner on file: %v\n", err)
+		return fmt.Errorf("unable to create scanner on file: %v", err)
 	}
 
 	regEmptyLine := regexp.MustCompile(EMPTYLINE)
@@ -169,7 +169,7 @@ func format(fileName string) error {
 		if err == io.EOF {
 			break
 		} else if err != nil {
-			return fmt.Errorf("unable to get query: %v\n", err)
+			return fmt.Errorf("unable to get query: %v", err)
 		}
 
 		if len(comment) > 0 {
@@ -185,7 +185,7 @@ func format(fileName string) error {
 				out = append(out, fmt.Sprintf("%v\n", query))
 				continue
 			} else if err != nil {
-				return fmt.Errorf("unable to format query: %v\n", err)
+				return fmt.Errorf("unable to format query: %v", err)
 			}
 
 			out = append(out, fmt.Sprintf("%v", query))
@@ -194,19 +194,19 @@ func format(fileName string) error {
 
 	err = file.Truncate(0)
 	if err != nil {
-		return fmt.Errorf("unable to truncate file: %v\n", err)
+		return fmt.Errorf("unable to truncate file: %v", err)
 	}
 
 	_, err = file.Seek(0, 0)
 	if err != nil {
-		return fmt.Errorf("unable to seek begining of file: %v\n", err)
+		return fmt.Errorf("unable to seek begining of file: %v", err)
 	}
 
 	writer := bufio.NewWriter(file)
 	for _, o := range out {
 		_, err = writer.WriteString(o)
 		if err != nil {
-			return fmt.Errorf("unable to write to a file: %v\n", err)
+			return fmt.Errorf("unable to write to a file: %v", err)
 		}
 		writer.Flush()
 	}
@@ -214,23 +214,54 @@ func format(fileName string) error {
 	return nil
 }
 
-func wrap(x func(string) error, f string, wg *sync.WaitGroup, isFailure *bool) {
+type Status struct {
+	ok  bool
+	mux sync.Mutex
+}
+
+func NewStatus() *Status {
+	return &Status{
+		ok: true,
+	}
+}
+
+func (s *Status) Failed() {
+	s.mux.Lock()
+	defer s.mux.Unlock()
+	s.ok = false
+}
+
+func (s *Status) OK() bool {
+	s.mux.Lock()
+	defer s.mux.Unlock()
+	return s.ok
+}
+
+func wrap(x func(string) error, f string, wg *sync.WaitGroup, stat *Status) {
 	defer wg.Done()
 
-	fmt.Printf("formatting: %s\n", f)
-
-	start := time.Now()
 	err := x(f)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "unable to format file: %v\n", err)
-		*isFailure = true
+		stat.Failed()
 	}
-	fmt.Printf("%s done, took: %v\n", f, time.Since(start))
+}
+
+func timed(x func(string) error) func(string) error {
+	return func(f string) error {
+		fmt.Printf("formatting: %s\n", f)
+
+		start := time.Now()
+		err := x(f)
+		fmt.Printf("%s done, took: %v\n", f, time.Since(start))
+		return err
+	}
 }
 
 func main() {
 	path := "."
 	if len(os.Args) >= 2 {
+
 		path = os.Args[1]
 	}
 
@@ -256,7 +287,7 @@ func main() {
 
 		regFileName := regexp.MustCompile(FILENAME)
 
-		isFailure := false
+		status := NewStatus()
 		var wg sync.WaitGroup
 		for _, f := range files {
 			if !regFileName.MatchString(f) {
@@ -264,11 +295,11 @@ func main() {
 			}
 
 			wg.Add(1)
-			go wrap(format, f, &wg, &isFailure)
+			go wrap(timed(format), f, &wg, status)
 		}
 
 		wg.Wait()
-		if isFailure {
+		if !status.OK() {
 			os.Exit(FAILURE)
 		}
 
@@ -279,7 +310,7 @@ func main() {
 			os.Exit(FAILURE)
 		}
 
-		err = format(path)
+		err = timed(format)(path)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "unable to format file: %v\n", err)
 			os.Exit(FAILURE)
